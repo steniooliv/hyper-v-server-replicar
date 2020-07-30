@@ -103,6 +103,33 @@ We have two hosts, HYR1, HYR2.
   - `$curList = (Get-Item WSMan:\localhost\Client\TrustedHosts).value`
   - `Set-Item WSMan:\localhost\Client\TrustedHosts -Value "$curList, HYR2" #Add HYR2`
 
+- On Windows 10, create Windows Credentials for hosts connection
+  - `cmdkey /list #List credentials`
+  - `cmdkey /add:HYR1 /user:Administrador /pass:abc123. #Add HYR1`
+  - `cmdkey /add:HYR2 /user:Administrador /pass:abc123. #Add HYR2`
 
+- On Windows 10, test connection with command below
+  - `Enter-PSSession -ComputerName HYR1`
+  - `Enter-PSSession -ComputerName HYR2`
 
+### Using Hyper-V Management GUI
 
+- Now the two servers are ready to be connected to Hyper-V Management, connect both and we will create the virtual machines inside the manager
+
+- Create an external virtual network switch on both servers, named Network VM, using network adapter number 2
+
+- Create a virtual machine on HYR1 according to your needs
+
+- On HYR1 and HYR2
+  - Click on Hyper-V Settings
+  - Go to Replica Configuration and Enable
+  - Set HTTPS authentication and select the certificate for HYR1
+  - In Allow replication to selected servers, add the HYR1 in primary server, and set a replica group name below
+  - Also add the HYR2 in primary server, and set same replica group name
+  
+- On HYR1
+  - Right click on the VM and Enable Replication, in the next window select the replica server (HYR2), select the certificate and in the next steps define the frequency with which the VM will be replicated, if an error message appears, click finish again
+
+- There, now the VM will be replicated on the HYR2 replica server
+
+- In case of Failover, always access the replica option by right clicking on the VM, if the main server (HYR1) goes down, enable Failover with the last save point. After the primary server has been booted again, simply reverse the replica.
